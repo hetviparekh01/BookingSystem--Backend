@@ -1,6 +1,7 @@
 import { injectable } from "inversify";
 import { IBusSchedule } from "../interfaces";
 import BusSchedule from "../models/busSchedule.model";
+import { ObjectId } from "mongodb";
 
 @injectable()
 export class BusScheduleService{
@@ -47,7 +48,26 @@ export class BusScheduleService{
 
     async getBusSchduleById(scheduleId:string){
         try {
-            const schedule=await BusSchedule.findById(scheduleId);
+            const schedule = await BusSchedule.aggregate([
+                {
+                    $match: {
+                        _id: new ObjectId(scheduleId)
+                    }
+                },
+                {
+                    $lookup: {
+                        from: "buses",
+                        localField: "bus",
+                        foreignField: "_id",
+                        as: "busDetails"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$busDetails",
+                    }
+                },
+            ]);
             if(!schedule){
                 throw new Error('Bus schedule not found')
             }

@@ -1,6 +1,7 @@
 import mongoose, { Schema } from "mongoose";
 
 const routeSchema = new Schema({
+    name:{type:String,required:true},
     distance: { type: Number, required: true }, 
     stations: [{ type: Schema.Types.ObjectId, ref: 'Station' }],
     stops: [{

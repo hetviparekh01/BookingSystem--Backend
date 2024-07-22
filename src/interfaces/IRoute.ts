@@ -1,6 +1,7 @@
 import { Schema } from "mongoose";
 
 export interface IRoute{
+    name:string;
     distance: number;
     stations: Schema.Types.ObjectId[];
     segments: {

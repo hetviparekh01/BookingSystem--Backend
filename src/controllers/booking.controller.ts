@@ -16,7 +16,7 @@ export class BookingController{
             const bookingData=req.body;
             bookingData.user=req.headers._id;
             await this.bookingService.addBooking(bookingData);
-            res.status(201).json({ status: true, message: "booking added successfully!" });
+            res.status(201).json({ status: true, message: "Ticket Booked Sucessfully" });
         } catch (error: any) {
             const errorMessage = errorHandle(error)
             res.status(400).json({ status: false, message: errorMessage })

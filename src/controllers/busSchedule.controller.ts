@@ -6,11 +6,11 @@ import { controller, httpDelete, httpGet, httpPost, httpPut } from "inversify-ex
 import { errorHandle } from "../utils/errorHandler";
 import { RoleMiddleWare } from "../middlewares";
 
-@controller('/busSchedule',TYPES.AuthMiddleware,RoleMiddleWare(['admin']))
+@controller('/busSchedule',TYPES.AuthMiddleware,)
 export class busScheduleScheduleController{
     constructor(@inject<BusScheduleService>(TYPES.BusScheduleService) private busScheduleService: BusScheduleService) { }
 
-    @httpPost("/addbusSchedule")
+    @httpPost("/addbusSchedule", RoleMiddleWare(['admin']))
     async addbusSchedule(req: Request, res: Response) {
         try {
             const busScheduleData=req.body; 
@@ -22,7 +22,7 @@ export class busScheduleScheduleController{
         }
     }
 
-    @httpPut("/updatebusSchedule/:id")
+    @httpPut("/updatebusSchedule/:id", RoleMiddleWare(['admin']))
     async updatebusSchedule(req: Request, res: Response) {
         try {
             const busScheduleData = req.body
@@ -34,7 +34,7 @@ export class busScheduleScheduleController{
         }
     }
 
-    @httpDelete("/deletebusSchedule/:id")
+    @httpDelete("/deletebusSchedule/:id", RoleMiddleWare(['admin']))
     async deletebusSchedule(req: Request, res: Response) {
         try {
             await this.busScheduleService.deleteBusSchedule(req.params.id);
@@ -45,7 +45,7 @@ export class busScheduleScheduleController{
         }
     }
 
-    @httpGet("/getbusSchedules")
+    @httpGet("/getbusSchedules", RoleMiddleWare(['admin']))
     async getbusSchedules(req: Request, res: Response) {
         try {
             const busSchedules = await this.busScheduleService.getBusSchedule();    
@@ -56,7 +56,7 @@ export class busScheduleScheduleController{
         }
     }
 
-    @httpGet("/getbusScheduleById/:id")
+    @httpGet("/getbusScheduleById/:id", RoleMiddleWare(['admin','user']))
     async getbusScheduleById(req: Request, res: Response) {
         try {
             const busSchedule = await this.busScheduleService.getBusSchduleById(req.params.id);

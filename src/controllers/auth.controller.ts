@@ -22,7 +22,6 @@ export class AuthController {
             res.status(400).json({status:false,message:errorMessage})
         }
     }
-
     @httpPost("/login")
     async login(req: Request, res: Response){
         try {

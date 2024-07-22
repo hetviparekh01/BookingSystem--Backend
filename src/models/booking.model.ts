@@ -5,7 +5,7 @@ import { Bus } from "./bus.model";
 const bookingSchema = new Schema({
     busSchedule: { type: Schema.Types.ObjectId, ref: 'BusSchedule', required: true },
     user: { type: Schema.Types.ObjectId, ref: 'User', required: true },
-    bookingDate: { type: Date, default: Date.now },
+    bookingDate: { type: Date, required:true },
     seatNumber: { type: Number }
 }, {
     timestamps: true

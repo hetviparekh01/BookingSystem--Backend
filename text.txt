@@ -180,3 +180,291 @@ const busScheduleSchema = new Schema({
     }
   }
 ]
+
+
+
+
+
+***************************************************************************************************************************************************
+
+[
+  {
+    $lookup: {
+      from: "busschedules",
+      localField: "_id",
+      foreignField: "bus",
+      as: "scheduleData"
+    }
+  },
+  {
+    $lookup: {
+      from: "routes",
+      localField: "route",
+      foreignField: "_id",
+      as: "routeDetail"
+    }
+  },
+  {
+    $unwind: {
+      path: "$routeDetail",
+    }
+  },
+  {
+    $match: { _id: new ObjectId('669de4b81fc37311145c7fb6') }
+  },
+  {
+    $unwind: { path: "$routeDetail.stops" }
+  },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "routeDetail.stops.fromStation",
+      foreignField: "_id",
+      as: "fromStationDetails"
+    }
+  },
+  {
+    $unwind: { path: "$fromStationDetails" }
+  },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "routeDetail.stops.toStation",
+      foreignField: "_id",
+      as: "toStationDetails"
+    }
+  },
+  {
+    $unwind: { path: "$toStationDetails" }
+  },
+  {
+    $match: {
+      "fromStationDetails.name": "Ankleshwar", // Replace with the name of the from station
+      "toStationDetails.name": "Surat"         // Replace with the name of the to station
+    }
+  },
+  // {
+  //   $group: {
+  //     _id: "$_id",
+  //     busNumber: { $first: "$busNumber" },
+  //     seatingCapacity: { $first: "$seatingCapacity" },
+  //     amenities: { $first: "$amenities" },
+  //     route: { $first: "$route" },
+  //     availableSeats: { $first: "$availableSeats" },
+  //     bookedSeats: { $first: "$bookedSeats" },
+  //     routeDetail: {
+  //       $push: {
+  //         stop: "$routeDetail.stops._id",
+  //         fromStation: "$fromStationDetails.name",
+  //         toStation: "$toStationDetails.name",
+  //         distancekm: "$routeDetail.stops.distancekm",
+  //         timeMin: "$routeDetail.stops.timeMin"
+  //       }
+  //     },
+  //     scheduleData: { $first: "$scheduleData" },
+  //     createdAt: { $first: "$createdAt" },
+  //     updatedAt: { $first: "$updatedAt" }
+  //   }
+  // },
+  // {
+  //   $project: {
+  //     _id: 1,
+  //     busNumber: 1,
+  //     seatingCapacity: 1,
+  //     amenities: 1,
+  //     route: 1,
+  //     availableSeats: 1,
+  //     bookedSeats: 1,
+  //     routeDetail: 1,
+  //     scheduleData: {
+  //       $filter: {
+  //         input: "$scheduleData",
+  //         as: "schedule",
+  //         cond: { $eq: ["$$schedule.stop", "$routeDetail.stop"] }
+  //       }
+  //     },
+  //     createdAt: 1,
+  //     updatedAt: 1
+  //   }
+  // }
+]
+***********************************************************************************************************************************************
+
+
+
+[
+  {
+    $lookup: {
+      from: "busschedules",
+      localField: "_id",
+      foreignField: "bus",
+      as: "scheduleData"
+    }
+  },
+  {
+    $lookup: {
+      from: "routes",
+      localField: "route",
+      foreignField: "_id",
+      as: "routeDetail"
+    }
+  },
+  {
+    $unwind: {
+      path: "$routeDetail"
+    }
+  },
+  {
+    $unwind: { path: "$routeDetail.stops" }
+  },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "routeDetail.stops.fromStation",
+      foreignField: "_id",
+      as: "fromStationDetails"
+    }
+  },
+  {
+    $unwind: { path: "$fromStationDetails" }
+  },
+  {
+    $lookup: {
+      from: "stations",
+      localField: "routeDetail.stops.toStation",
+      foreignField: "_id",
+      as: "toStationDetails"
+    }
+  },
+  {
+    $unwind: { path: "$toStationDetails" }
+  },
+  {
+    $match: {
+      "fromStationDetails.name": "Ahmedabad", 
+      "toStationDetails.name": "Surat"   
+    }
+  },
+  {
+    $group: {
+      _id: "$_id",
+      busNumber: { $first: "$busNumber" },
+      seatingCapacity: { $first: "$seatingCapacity" },
+      amenities: { $first: "$amenities" },
+      route: { $first: "$route" },
+      availableSeats: { $first: "$availableSeats" },
+      bookedSeats: { $first: "$bookedSeats" },
+      routeDetail: {
+        $push: {
+          stop: "$routeDetail.stops._id",
+          fromStation: "$fromStationDetails.name",
+          toStation: "$toStationDetails.name",
+          distancekm: "$routeDetail.stops.distancekm",
+          timeMin: "$routeDetail.stops.timeMin"
+        }
+      },
+      scheduleData: { $first: "$scheduleData" },
+      createdAt: { $first: "$createdAt" },
+      updatedAt: { $first: "$updatedAt" }
+    }
+  },
+  {
+    $addFields: {
+      scheduleData: {
+        $filter: {
+          input: "$scheduleData",
+          as: "schedule",
+          cond: { $eq: ["$$schedule.stop", { $arrayElemAt: ["$routeDetail.stop", 0] }] }
+        }
+      }
+    }
+  },
+  {
+    $project: {
+      _id: 1,
+      busNumber: 1,
+      seatingCapacity: 1,
+      amenities: 1,
+      route: 1,
+      availableSeats: 1,
+      bookedSeats: 1,
+      routeDetail: 1,
+      scheduleData: 1,
+      createdAt: 1,
+      updatedAt: 1
+    }
+  },
+   {
+    $match: { _id: new ObjectId('669de4b81fc37311145c7fb6') }
+  },
+]
+
+
+
+
+
+
+
+
+
+
+
+
+{
+            "_id": "669de3f21fc37311145c7fa7",
+            "distance": 260,
+            "stations": [
+                "669cb23af1f1bef436c99b25",
+                "669cb245f1f1bef436c99b27",
+                "669cb250f1f1bef436c99b29",
+                "669cb258f1f1bef436c99b2b"
+            ],
+            "stops": [
+                {
+                    "fromStation": "669cb23af1f1bef436c99b25",
+                    "toStation": "669cb245f1f1bef436c99b27",
+                    "distancekm": 111,
+                    "timeMin": 150,
+                    "_id": "669de3f21fc37311145c7fa8"
+                },
+                {
+                    "fromStation": "669cb245f1f1bef436c99b27",
+                    "toStation": "669cb250f1f1bef436c99b29",
+                    "distancekm": 89,
+                    "timeMin": 94,
+                    "_id": "669de3f21fc37311145c7fa9"
+                },
+                {
+                    "fromStation": "669cb250f1f1bef436c99b29",
+                    "toStation": "669cb258f1f1bef436c99b2b",
+                    "distancekm": 60,
+                    "timeMin": 34,
+                    "_id": "669de3f21fc37311145c7faa"
+                },
+                {
+                    "fromStation": "669cb23af1f1bef436c99b25",
+                    "toStation": "669cb258f1f1bef436c99b2b",
+                    "distancekm": 260,
+                    "timeMin": 278,
+                    "_id": "669de3f21fc37311145c7fab"
+                },
+                {
+                    "fromStation": "669cb23af1f1bef436c99b25",
+                    "toStation": "669cb250f1f1bef436c99b29",
+                    "distancekm": 200,
+                    "timeMin": 205,
+                    "_id": "669de3f21fc37311145c7fac"
+                },
+                {
+                    "fromStation": "669cb245f1f1bef436c99b27",
+                    "toStation": "669cb258f1f1bef436c99b2b",
+                    "distancekm": 149,
+                    "timeMin": 128,
+                    "_id": "669de3f21fc37311145c7fad"
+                }
+            ],
+            "createdAt": "2024-07-22T04:45:38.835Z",
+            "updatedAt": "2024-07-22T04:45:38.835Z",
+            "__v": 0
+        }
+
