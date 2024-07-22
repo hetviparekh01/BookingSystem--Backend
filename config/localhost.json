@@ -1,0 +1,5 @@
+{
+    "MONGO_URL":"mongodb+srv://hetvi01:mongo_01@backenddb.oe9ottm.mongodb.net/BookingSystem_Demo?retryWrites=true&w=majority&appName=backendDB",
+    "PORT":3000,
+    "SECRET_KEY":"BOOKINGEXAM"
+}
