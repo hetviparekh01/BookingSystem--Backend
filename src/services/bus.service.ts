@@ -146,28 +146,48 @@ export class BusService {
 
     async getAllBuses() {
         try {
-            const bus = await Bus.find({})
+          const bus = await Bus.aggregate([{
+            $lookup: {
+              from: "routes",
+              localField: "route",
+              foreignField: "_id",
+              as: "routeDetail"
+            }
+          },
+            {
+              $unwind: {
+                path: "$routeDetail"
+              }
+            }])
             return bus
-        } catch (error: any) {
+        } catch (error: any) {  
             throw (error)
         }
     }
 
     async getBusById(busId: string) {
         try {
-            const bus = await Bus.aggregate([
-                {
-                $match: { _id: new ObjectId(busId) },
-                },
-                {
-                    $lookup: {
-                        from: 'busschedules',
-                        localField: '_id',
-                        foreignField: 'bus',
-                        as: 'BusSchedulesData'
-                    }
-                }
-            ])
+          const bus = await Bus.aggregate([
+            
+            {
+              $match: {
+                _id: new ObjectId(busId)
+              }
+            },
+            {
+              $lookup: {
+                from: "routes",
+                localField: "route",
+                foreignField: "_id",
+                as: "routeDetail",
+              }
+            },
+            {
+              $unwind: {
+                path: "$routeDetail",
+              }
+            },
+          ])
             return bus
         } catch (error: any) {
             throw (error)

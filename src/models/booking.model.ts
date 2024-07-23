@@ -28,7 +28,6 @@ bookingSchema.pre('save', async function(next) {
         if (existingBooking) {
             throw new Error('Seat already booked for this bus schedule and date.');
         }
-
         const bus = await Bus.findById(busSchedule.bus);
 
         if (!bus) {

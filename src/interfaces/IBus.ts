@@ -5,4 +5,6 @@ export interface IBus  {
     seatingCapacity: number;
     amenities?: string;
     route: Schema.Types.ObjectId;
+    startStation:Schema.Types.ObjectId;
+    stopStation:Schema.Types.ObjectId
 }
