@@ -13,5 +13,20 @@ const routeSchema = new Schema({
 },{
     timestamps:true
 });
+routeSchema.pre('save',function(next){
+    const route = this;
+    const stationIds = route.stations.map(station => station.toString());
 
+    const isValid = route.stops.every(stop =>
+        stationIds.includes(stop.fromStation.toString()) &&
+        stationIds.includes(stop.toStation.toString())
+    );
+
+    if (!isValid) {
+        const err = new Error('Invalid stations in stops array');
+        next(err);
+    } else {
+        next();
+    }
+})
 export const Route=mongoose.model("Route",routeSchema)

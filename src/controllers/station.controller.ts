@@ -19,7 +19,7 @@ export class StationController{
         } catch (error: any) {
             const errorMessage = errorHandle(error)
             res.status(400).json({ status: false, message: errorMessage })
-        }
+        }       
     }
 
     @httpPut("/updatestation/:id")
