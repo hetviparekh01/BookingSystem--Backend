@@ -6,6 +6,8 @@ import { IRoute } from "../interfaces";
 export class RouteService{
     async addRoute(routeData:IRoute){
         try {
+            const stations = routeData.stations.map((element: any) => element.stationId);
+            routeData.stations=stations       
             await Route.create(routeData)
         } catch (error:any) {
             throw(error)
@@ -33,7 +35,51 @@ export class RouteService{
 
     async getRoute(){
         try {
-            const routes = await Route.find({})
+            const routes = await Route.aggregate([
+                {
+                    $lookup: {
+                        from: 'stations',
+                        localField: "stations",
+                        foreignField: "_id",
+                        as: "stationsdetail"
+                    }
+                },
+                {
+                    $addFields: {
+                        stationNames: {
+                            "$map": {
+                                "input": "$stationsdetail",
+                                "as": "station",
+                                "in": "$$station.name"
+                            }
+                        }
+                    }
+                },
+                {
+                    $addFields: {
+                        stationNamesStr: {
+                            $reduce: {
+                                input: "$stationNames",
+                                initialValue: "",
+                                in: {
+                                    $concat: [
+                                        "$$value",
+                                        { "$cond": { "if": { "$eq": ["$$value", ""] }, "then": "", "else": ", " } },
+                                        "$$this"
+                                    ]
+                                }
+                            }
+                        }
+                    }
+                },
+                {
+                    $project: {
+                        "stations": 0,
+                        "stationsdetail": 0,
+                        "stationNames": 0
+                    }
+                }
+            ])
             return routes
         } catch (error:any) {
             throw(error)
