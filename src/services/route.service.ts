@@ -37,18 +37,23 @@ export class RouteService{
         try {
             const routes = await Route.aggregate([
                 {
+                    $unwind: {
+                        path: "$stops"
+                    }
+                },
+                {
                     $lookup: {
-                        from: 'stations',
+                        from: "stations",
                         localField: "stations",
                         foreignField: "_id",
-                        as: "stationsdetail"
+                        as: "stationDetails"
                     }
                 },
                 {
                     $addFields: {
                         stationNames: {
-                            "$map": {
-                                "input": "$stationsdetail",
+                            $map: {
+                                "input": "$stationDetails",
                                 "as": "station",
                                 "in": "$$station.name"
                             }
@@ -56,29 +61,56 @@ export class RouteService{
                     }
                 },
                 {
-                    $addFields: {
-                        stationNamesStr: {
-                            $reduce: {
-                                input: "$stationNames",
-                                initialValue: "",
-                                in: {
-                                    $concat: [
-                                        "$$value",
-                                        { "$cond": { "if": { "$eq": ["$$value", ""] }, "then": "", "else": ", " } },
-                                        "$$this"
-                                    ]
-                                }
-                            }
-                        }
+                    $lookup: {
+                        from: "stations",
+                        localField: "stops.fromStation",
+                        foreignField: "_id",
+                        as: "fromStationDetails"
                     }
                 },
                 {
-                    $project: {
-                        "stations": 0,
-                        "stationsdetail": 0,
-                        "stationNames": 0
+                    $unwind: {
+                        path: "$fromStationDetails",
                     }
-                }
+                },
+                {
+                    $lookup: {
+                        from: "stations",
+                        localField: "stops.toStation",
+                        foreignField: "_id",
+                        as: "toStationDetails"
+                    }
+                },
+                {
+                    $unwind: {
+                        path: "$toStationDetails",
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$_id",
+                        name: { $first: "$name" },
+                        distance: { $first: '$distance' },
+                        stations: { $first: '$stationNames' },
+                        stopsArray: {
+                            $push: {
+                                fromStation: "$fromStationDetails.name",
+                                toStation: "$toStationDetails.name",
+                                distancekm: "$stops.distancekm",
+                                timeMin: "$stops.timeMin",
+                                _id: "$stops._id"
+                            }
+                        },
+                        stationsArray: {
+                            $push: {
+
+                            }
+                        },
+                        createdAt: { $first: "$createdAt" },
+                        updatedAt: { $first: "$updatedAt" }
+                    }
+                },
+
             ])
             return routes
         } catch (error:any) {
